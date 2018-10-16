@@ -6,7 +6,6 @@ const errorHandling = require('../errorHandling');
 router.get('/', async function(req, res, next) {
   if (req.query.accessToken !== undefined) {
     try {
-      // const response = await API.getAllGists('');
       const { response, pages } = await API.getAllGists(req.query.accessToken, req.query.page);
 
       let result = response.map((gist) => {

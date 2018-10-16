@@ -15,11 +15,14 @@ const makeRequest = async function(method, uri, accessToken, body, queryString) 
       uri: url,
       headers: {
         accept: HEADER_ACCEPT_GITHUB_V3,
-        authorization: `token ${accessToken}`,
         'User-Agent': 'microblog-app',
       },
       json: true,
       resolveWithFullResponse: true,
+    }
+
+    if (accessToken) {
+      config.headers.authorization = `token ${accessToken}`;
     }
 
     if (method.toUpperCase() !== 'GET') {
@@ -78,11 +81,15 @@ const getAllGists = async function(accessToken, page) {
 }
 
 const getGist = async function(uri) {
-  const response = await rp({
-    method: 'GET',
-    uri,
-  })
-  return response;
+  try {
+    const response = await rp({
+      method: 'GET',
+      uri,
+    })
+    return response;
+  } catch (e) {
+    throw e;
+  }
 }
 
 const createGist = async function(description, content, accessToken) {
@@ -109,9 +116,20 @@ const createGist = async function(description, content, accessToken) {
   }
 }
 
+const getComments = async function(uri) {
+  try {
+    const response = await makeRequest('GET', uri);
+
+    return response.body;
+  } catch (e) {
+    throw e;
+  }
+}
+
 module.exports = {
   getAccessToken,
   getAllGists,
   getGist,
   createGist,
+  getComments,
 }
