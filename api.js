@@ -3,11 +3,15 @@ const CLIENT_SECRET = 'f29284e62d8c8bdd0fba0b304b7c5c243eec0d88';
 const HEADER_ACCEPT_GITHUB_V3 = 'application/vnd.github.v3+json';
 const rp = require('request-promise');
 
-const makeRequest = async function(method, uri, accessToken, body) {
+const makeRequest = async function(method, uri, accessToken, body, queryString) {
   try {
+    let url = uri;
+    if (queryString) {
+      url += `?${Object.entries(queryString).map(e => e.join('=')).join('&')}`;
+    }
     const config = {
       method,
-      uri,
+      uri: url,
       headers: {
         accept: HEADER_ACCEPT_GITHUB_V3,
         authorization: `token ${accessToken}`,
@@ -46,12 +50,16 @@ const getAccessToken = async function(code) {
     }
 }
 
-const getAllGists = async function(accessToken) {
+const getAllGists = async function(accessToken, page) {
   try {
     const response = await makeRequest(
       'GET',
       'https://api.github.com/gists',
       accessToken,
+      null,
+      {
+        page,
+      }
     );
     return response;
   } catch (e) {
@@ -67,8 +75,33 @@ const getGist = async function(uri) {
   return response;
 }
 
+const createGist = async function(description, content, accessToken) {
+  try {
+    const body = {
+      description,
+      public: false,
+      files: {
+        [`${description.split(' ').join('_')}.txt`]: {
+          content
+        }
+      }
+    };
+
+    const response = await makeRequest(
+      'POST',
+      'https://api.github.com/gists',
+      accessToken,
+      body,
+    );
+    return response;
+  } catch (e) {
+    throw e;
+  }
+}
+
 module.exports = {
   getAccessToken,
   getAllGists,
   getGist,
+  createGist,
 }
