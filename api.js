@@ -2,6 +2,7 @@ const CLIENT_ID = 'b77a50cf0d2a3029972c';
 const CLIENT_SECRET = 'f29284e62d8c8bdd0fba0b304b7c5c243eec0d88';
 const HEADER_ACCEPT_GITHUB_V3 = 'application/vnd.github.v3+json';
 const rp = require('request-promise');
+const octopage = require('github-pagination');
 
 const makeRequest = async function(method, uri, accessToken, body, queryString) {
   try {
@@ -18,6 +19,7 @@ const makeRequest = async function(method, uri, accessToken, body, queryString) 
         'User-Agent': 'microblog-app',
       },
       json: true,
+      resolveWithFullResponse: true,
     }
 
     if (method.toUpperCase() !== 'GET') {
@@ -61,7 +63,15 @@ const getAllGists = async function(accessToken, page) {
         page,
       }
     );
-    return response;
+    let pages = octopage.parser(response.headers.link);
+    if (!pages.hasOwnProperty('last')) {
+      pages.last = page;
+    }
+
+    return {
+      response: response.body,
+      pages
+    }
   } catch (e) {
     throw e;
   }
@@ -93,7 +103,7 @@ const createGist = async function(description, content, accessToken) {
       accessToken,
       body,
     );
-    return response;
+    return response.body;
   } catch (e) {
     throw e;
   }

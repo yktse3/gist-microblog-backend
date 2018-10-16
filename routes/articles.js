@@ -4,11 +4,10 @@ const API = require('../api');
 const errorHandling = require('../errorHandling');
 
 router.get('/', async function(req, res, next) {
-  console.log('getting');
   if (req.query.accessToken !== undefined) {
     try {
       // const response = await API.getAllGists('');
-      const response = await API.getAllGists(req.query.accessToken, req.query.page);
+      const { response, pages } = await API.getAllGists(req.query.accessToken, req.query.page);
 
       let result = response.map((gist) => {
         return {
@@ -32,7 +31,10 @@ router.get('/', async function(req, res, next) {
         return gist;
       })
 
-      res.json(result);
+      res.json({
+        articles: result,
+        pages,
+      });
     } catch (e) {
       errorHandling(e, res, next);
     }
