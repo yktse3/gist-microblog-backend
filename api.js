@@ -126,10 +126,30 @@ const getComments = async function(uri) {
   }
 }
 
+const createComment = async function(gistID, content, accessToken) {
+  try {
+    const body = {
+      body: content,
+    };
+
+    const response = await makeRequest(
+      'POST',
+      `https://api.github.com/gists/${gistID}/comments`,
+      accessToken,
+      body,
+    )
+    
+    return response.body;
+  } catch (e) {
+    throw e;
+  }
+}
+
 module.exports = {
   getAccessToken,
   getAllGists,
   getGist,
   createGist,
   getComments,
+  createComment,
 }
