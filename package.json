@@ -9,5 +9,8 @@
     "github-pagination": "0.1.0",
     "request": "2.88.0",
     "request-promise": "4.2.2"
+  },
+  "scripts": {
+    "start": "node app"
   }
 }
